@@ -9,8 +9,7 @@
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
-    "lint": "echo \"No linting configured\"",
-    "build-web": "cp html out/html; rm -r out/html/startPage;"
+    "lint": "echo \"No linting configured\""
   },
   "author": {
     "name": "Heath Mitchell",
@@ -48,14 +47,8 @@
     "electron-store": "^8.2.0",
     "electron-unhandled": "^4.0.1",
     "electron-window-state": "^5.0.3",
-    "escape-html": "^1.0.3",
     "minecraft-data": "^3.119.0",
     "minecraft-protocol": "^1.68.0",
-    "node-eval": "^2.0.0",
-    "source-map-support": "^0.5.21"
-  },
-  "optionalDependencies": {
-    "bufferutil": "^4.2.0",
-    "utf-8-validate": "^6.0.6"
+    "node-eval": "^2.0.0"
   }
 }
