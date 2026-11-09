@@ -1,5 +1,6 @@
 const {ipcRenderer} = require('electron')
 const Store = require('electron-store')
+const minecraftData = require('minecraft-data')
 
 const store = new Store()
 
@@ -20,11 +21,28 @@ let listenPort
 let version
 let onlineMode
 
-loadSetting('lastVersion', 'version', 'version', '1.18.2')
+populateVersions()
+loadSetting('lastVersion', 'version', 'version', document.getElementById('version').options[0].value)
+if (document.getElementById('version').value === '') {
+  document.getElementById('version').value = document.getElementById('version').options[0].value
+}
 loadSetting('lastConnectAddress', 'connectAddress', 'connect-address', '127.0.0.1')
 loadSetting('lastConnectPort', 'connectPort', 'connect-port', '25565')
 loadSetting('lastListenPort', 'listenPort', 'listen-port', '25566')
 loadSetting('lastOnlineMode', 'onlineMode', 'auth-online', true)
+
+function populateVersions ()
+{
+  const versionSelect = document.getElementById('version')
+  const releases = minecraftData.supportedVersions.pc.filter(v => /^\d+\.\d+(\.\d+)?$/.test(v)).reverse()
+
+  for (const version of releases) {
+    const option = document.createElement('option')
+    option.value = version
+    option.textContent = version
+    versionSelect.appendChild(option)
+  }
+}
 
 function saveSettings ()
 {
