@@ -154,31 +154,6 @@ function findDefault(setting) {
     }
   }
 }
-// TODO: saving and loading custom presets
-function findPreset(elem) {
-  const name = elem.innerText.match(/Preset: ([\w|\s]+)/i)[1].replace(/\s/g, '_')
-  defaultsJson.extended_presets.forEach((value) => {
-    if (value.hasOwnProperty(name)) {
-      // Copy the object
-      // Otherwise it will be a reference and changing it will change the preset
-      sharedVars.hiddenPackets = {
-        serverbound: [...value[name].serverbound],
-        clientbound: [...value[name].clientbound]
-      }
-    }
-  })
-}
-defaultsJson.extended_presets.forEach((value) => {
-  const e = document.createElement('button')
-  e.setAttribute('onclick', 'findPreset(this); updateFilteringTab()')
-  e.setAttribute('style',  'margin-left: 8px;');
-  e.innerText = `Preset: ${Object.keys(value)[0].replace(/_/g, ' ')}`;
-  document.getElementById('extendedPresets').appendChild(e)
-})
-
-if (!findDefault('useExtendedPresets')) {
-  document.getElementById('extendedPresets').style.display = 'none'
-}
 
 sharedVars.hiddenPackets = getVersionSpecificVar('hiddenPackets', findDefault('hiddenPackets'))
 

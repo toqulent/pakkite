@@ -282,7 +282,7 @@ div.error {
   background: rgba(64, 127, 255, 0.15);
 }
 
-#mainPresets, #extendedPresets {
+#mainPresets {
   display: contents;
 }
 
