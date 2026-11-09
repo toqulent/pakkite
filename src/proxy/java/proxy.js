@@ -68,8 +68,8 @@ exports.startProxy = function (host, port, listenPort, version, onlineMode, auth
       console.log('call')
       // Wait for the renderer to be ready
       setTimeout(() => {
-        messageCallback('Unable to start pakkit', 'The port ' + listenPort + ' is in use. ' +
-          'Make sure to close any other instances of pakkit running on the same port or try a different port.', true)
+        messageCallback('Unable to start pakkite', 'The port ' + listenPort + ' is in use. ' +
+          'Make sure to close any other instances of pakkite running on the same port or try a different port.', true)
       }, 1000)
     } else {
       let srv
@@ -82,11 +82,11 @@ exports.startProxy = function (host, port, listenPort, version, onlineMode, auth
         })
         console.log('Proxy started (Java)!')
       } catch (err) {
-        let header = 'Unable to start pakkit'
+        let header = 'Unable to start pakkite'
         let message = err.message
         if (err.message.includes('EADDRINUSE')) {
           message = 'The port ' + listenPort + ' is in use. ' +
-            'Make sure to close any other instances of pakkit running on the same port or try a different port.'
+            'Make sure to close any other instances of pakkite running on the same port or try a different port.'
         }
         messageCallback(header, message)
         return
@@ -261,7 +261,7 @@ exports.startProxy = function (host, port, listenPort, version, onlineMode, auth
               '. Make sure the server is online.'
           }
           messageCallback(header, message)
-          if (!endedClient) { client.end('pakkit - ' + header + '\n' + message) }
+          if (!endedClient) { client.end('pakkite - ' + header + '\n' + message) }
         })
       })
     }

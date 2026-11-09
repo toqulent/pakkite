@@ -386,7 +386,7 @@ function loginDialog(data) {
   <br><br>
   <code style="font-size: 200%; user-select: all;" id="msaCode">${data.user_code}</code>
   <br><br>
-  pakkit does not store passwords, though it may store authentication tokens.
+  pakkite does not store passwords, it stores authentication tokens.
   <br><br>
   <button onclick="navigator.clipboard.writeText(document.getElementById('msaCode').innerText); document.getElementById('msaLink').click()" type="button">Open in browser and copy code</button>`
 }

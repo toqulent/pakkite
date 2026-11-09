@@ -6,7 +6,7 @@
  *
  * Copyright 2017 Vera Lobacheva (http://iamvera.com)
  * Released under the MIT license (LICENSE.txt)
- * Modified for Pakkit because the original seems to be abandoned and doesn't escape HTML properly
+ * Modified for Pakkite because the original seems to be abandoned and doesn't escape HTML properly
  * Also improved and tweaked styling
  */
 

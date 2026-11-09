@@ -66,8 +66,8 @@ function freePort () {
 async function launch() {
   wsPort = Number(await freePort())
 
-  child = spawn('java', ['-jar', dataFolder + '/proxypass/' + 'proxypass-pakkit.jar', '--start-from-args', '0.0.0.0',
-    listenPort.toString(), host, port.toString(), '1', 'true', 'true', 'pakkit', 'pakkitProxyPoweredByProxyPass',
+  child = spawn('java', ['-jar', dataFolder + '/proxypass/' + 'proxypass-pakkite.jar', '--start-from-args', '0.0.0.0',
+    listenPort.toString(), host, port.toString(), '1', 'true', 'true', 'pakkite', 'pakkiteProxyPoweredByProxyPass',
     'true', wsPort.toString()])
 
   child.stdout.on('data', handleOutput)

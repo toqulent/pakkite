@@ -1,9 +1,9 @@
 [![Discord](https://img.shields.io/discord/710593071229829120.svg?color=%237289da&label=discord&logo=discord&style=flat-square)](https://discord.gg/R4SYSNW)
 
-# pakkit
+# pakkite
 
 A WIP packet monitor for Minecraft written in Electron.
-[Download](https://github.com/Heath123/pakkit/releases/latest)
+[Download](https://github.com/toqulent/pakkite/releases/latest)
 
 # Running manually
 

@@ -19,7 +19,7 @@ function copyIfNotMatches (src, dest) {
 }
 
 exports.setup = function (osDataFolder, resourcesPath) {
-  const dataFolder = osDataFolder + '/pakkit'
+  const dataFolder = osDataFolder + '/pakkite'
   if (!fs.existsSync(dataFolder)) {
     fs.mkdirSync(dataFolder)
   }
@@ -28,7 +28,7 @@ exports.setup = function (osDataFolder, resourcesPath) {
     fs.mkdirSync(dataFolder + '/proxypass')
   }
 
-  copyIfNotMatches(resourcesPath + 'data/proxypass-pakkit.jar', dataFolder + '/proxypass/proxypass-pakkit.jar')
+  copyIfNotMatches(resourcesPath + 'data/proxypass-pakkite.jar', dataFolder + '/proxypass/proxypass-pakkite.jar')
 
   return dataFolder
 }

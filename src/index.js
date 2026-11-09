@@ -271,13 +271,13 @@ ipcMain.on('saveLog', async (event, arg) => {
 
     const result = await dialog.showSaveDialog(win, {
         filters: [
-            { name: 'pakkit log files', extensions: ['pakkit-json'] },
+            { name: 'pakkite log files', extensions: ['pakkite-json'] },
             // { name: 'All Files', extensions: ['*'] }
         ]
     })
 
     if (!result.canceled) {
-        const realPath = result.filePath.endsWith('.pakkit-json') ? result.filePath : result.filePath + '.pakkit-json'
+        const realPath = result.filePath.endsWith('.pakkite-json') ? result.filePath : result.filePath + '.pakkite-json'
         console.log('Saving log to', realPath)
         fs.writeFile(realPath, arg, function (err) {
             if (err) throw err;
@@ -291,7 +291,7 @@ ipcMain.on('loadLog', async (event, arg) => {
 
     const result = await dialog.showOpenDialog(win, {
         filters: [
-            { name: 'pakkit log files', extensions: ['pakkit-json'] },
+            { name: 'pakkite log files', extensions: ['pakkite-json'] },
             { name: 'All Files', extensions: ['*'] }
         ],
         properties: ['openFile']

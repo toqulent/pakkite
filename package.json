@@ -1,6 +1,6 @@
 {
-  "name": "pakkit",
-  "productName": "pakkit",
+  "name": "pakkite",
+  "productName": "pakkite",
   "version": "1.0.0",
   "description": "A packet monitor for Minecraft Java and Minecraft Bedrock",
   "main": "src/index.js",
