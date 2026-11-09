@@ -28,6 +28,7 @@ function wrappedClusterizeUpdate (htmlArray) {
     }
   }
   clusterize.update(newArray)
+  sharedVars.lastRenderedIndex = htmlArray.length
   hiddenPacketsCounter.innerHTML = sharedVars.hiddenPacketsAmount + ' hidden packets';
   if (sharedVars.hiddenPacketsAmount != 0) {
     hiddenPacketsCounter.innerHTML += ' (<a href="#" onclick="showAllPackets()">show all</a>)'
@@ -46,7 +47,6 @@ function toggleCheckbox (box, packetName, direction) {
   } */
   const check = box.checked
 
-  // console.log('Toggled visibility of', packetName, 'to', box.checked)
   const index = sharedVars.hiddenPackets[direction].indexOf(packetName)
   const currentlyHidden = index !== -1
   if (check && currentlyHidden) {
@@ -65,7 +65,9 @@ function updateFilterBox () {
   const newValue = filterInput.value
   if (sharedVars.lastFilter !== newValue) {
     sharedVars.lastFilter = newValue
-    deselectPacket()
+    if (currentPacket !== undefined) {
+      deselectPacket()
+    }
     updateFiltering()
   }
 }
@@ -112,6 +114,7 @@ const sharedVars = {
   hiddenPackets: undefined,
   scripting: undefined,
   lastFilter: '',
+  lastRenderedIndex: 0,
   hiddenPacketsAmount: 0,
   store: new Store()
 }
@@ -120,18 +123,15 @@ sharedVars.proxyCapabilities = JSON.parse(sharedVars.ipcRenderer.sendSync('proxy
 
 function getVersionSpecificVar(name, defaultValue) {
   const versionId = 'version-' + sharedVars.proxyCapabilities.versionId
-  const settingsObject = sharedVars.store.get(versionId)
-  if (settingsObject) {
-    if (!settingsObject[name]) {
-      settingsObject[name] = JSON.stringify(defaultValue)
-      sharedVars.store.set(versionId, settingsObject)
-    }
-  } else {
-    sharedVars.store.set(versionId, {
-      [name]: JSON.stringify(defaultValue)
-    })
+  let settingsObject = sharedVars.store.get(versionId)
+  if (!settingsObject) {
+    settingsObject = {}
   }
-  return JSON.parse(sharedVars.store.get(versionId)[name])
+  if (!settingsObject[name]) {
+    settingsObject[name] = JSON.stringify(defaultValue)
+    sharedVars.store.set(versionId, settingsObject)
+  }
+  return JSON.parse(settingsObject[name])
 }
 
 function setVersionSpecificVar(name, value) {
@@ -211,7 +211,6 @@ function updateFilteringStorage () {
 function updateFilteringTab () {
   for (const item of filteringPackets.children) {
     const name = item.children[0].children[2].textContent
-    //console.log(name);
 
     const checkbox = item.children[0].firstElementChild
     checkbox.readOnly = false
@@ -263,22 +262,26 @@ window.updateFilteringPackets()
 // TODO: Find a better way without updating on every packet (which causes lag)
 window.setInterval(function () {
   if (sharedVars.packetsUpdated) {
-    const diff = (sharedVars.packetList.parentElement.scrollHeight - sharedVars.packetList.parentElement.offsetHeight) - sharedVars.packetList.parentElement.scrollTop
-    const wasScrolledToBottom = diff < 3 // If it was scrolled to the bottom or almost scrolled to the bottom
-    wrappedClusterizeUpdate(sharedVars.allPacketsHTML)
-    if (wasScrolledToBottom) {
-      sharedVars.packetList.parentElement.scrollTop = sharedVars.packetList.parentElement.scrollHeight
-      // Also update it later - hacky workaround for scroll bar being "left behind"
-      setTimeout(() => {
+    const newItems = sharedVars.allPacketsHTML.slice(sharedVars.lastRenderedIndex)
+    if (newItems.length > 0) {
+      const diff = (sharedVars.packetList.parentElement.scrollHeight - sharedVars.packetList.parentElement.offsetHeight) - sharedVars.packetList.parentElement.scrollTop
+      const wasScrolledToBottom = diff < 3 // If it was scrolled to the bottom or almost scrolled to the bottom
+      const visibleNewItems = newItems.filter(item => !item[0].match(/<li .* class=".*filter-hidden.*">/))
+      clusterize.append(visibleNewItems)
+      sharedVars.lastRenderedIndex = sharedVars.allPacketsHTML.length
+      if (wasScrolledToBottom) {
         sharedVars.packetList.parentElement.scrollTop = sharedVars.packetList.parentElement.scrollHeight
-      }, 10)
+        // Also update it later - hacky workaround for scroll bar being "left behind"
+        setTimeout(() => {
+          sharedVars.packetList.parentElement.scrollTop = sharedVars.packetList.parentElement.scrollHeight
+        }, 10)
+      }
     }
     sharedVars.packetsUpdated = false
   }
 }, 50)
 
 window.closeDialog = function () { // window. stops standardjs from complaining
-  // dialogOpen = false
   document.getElementById('dialog-overlay').className = 'dialog-overlay'
   document.getElementById('dialog').innerHTML = ''
 }
@@ -301,7 +304,6 @@ function editAndResend (id) {
     return
   }
 
-  // dialogOpen = true
   document.getElementById('dialog-overlay').className = 'dialog-overlay active'
   document.getElementById('dialog').className='dialog'
   document.getElementById('dialog').innerHTML =
@@ -321,7 +323,6 @@ function editAndResend (id) {
 }
 
 function errorDialog(header, info, fatal) {
-  // dialogOpen = true
   document.getElementById('dialog-overlay').className = 'dialog-overlay active'
   document.getElementById('dialog').className='dialog dialog-small error-dialog'
   document.getElementById('dialog').innerHTML =
@@ -426,7 +427,6 @@ window.packetClick = function (id) { // window. stops standardjs from complainin
   document.body.classList.remove('noPacketSelected')
   document.body.classList.add('packetSelected')
   if (sharedVars.proxyCapabilities.jsonData) {
-    // sidebar.innerHTML = '<div style="padding: 10px;">Loading packet data...</div>';
     if (sharedVars.allPackets[id].data === undefined) {
       sharedVars.packetDom.getTreeElement().firstElementChild.innerHTML = 'Could not parse packet'
       // TODO: Error message

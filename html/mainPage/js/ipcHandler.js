@@ -12,8 +12,10 @@ exports.setup = function (passedSharedVars) {
 
   sharedVars.ipcRenderer.on('copyHexData', (event, arg) => {
     const ipcMessage = JSON.parse(arg)
+    const raw = sharedVars.allPackets[ipcMessage.id].raw
+    const bytes = raw.length ? raw : raw.data
     let data = ''
-    for (const byte of sharedVars.allPackets[ipcMessage.id].raw) {
+    for (const byte of bytes) {
       data += byte.toString(16).padStart(2, '0')
       data += ' '
     }
@@ -37,9 +39,8 @@ exports.setup = function (passedSharedVars) {
     sharedVars.ipcRenderer.send('copyToClipboard', clipData)
   })
 
-  sharedVars.ipcRenderer.on('packet', (event, arg) => {
-    const ipcMessage = JSON.parse(arg)
-    sharedVars.packetDom.addPacket(ipcMessage)
+  sharedVars.ipcRenderer.on('packet', (event, packet) => {
+    sharedVars.packetDom.addPacket(packet)
   })
 
   sharedVars.ipcRenderer.on('error', (event, arg) => {

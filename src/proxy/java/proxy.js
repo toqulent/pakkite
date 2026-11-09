@@ -157,7 +157,7 @@ exports.startProxy = function (host, port, listenPort, version, offlineUsername,
                 // targetClient.write(meta.name, data)
                 targetClient.writeRaw(raw)
               }
-              callback(direction, meta, data, id, [...raw], canUseScripting, packetValid)
+              callback(direction, meta, data, id, raw, canUseScripting, packetValid)
             }
           }
         }
@@ -176,7 +176,7 @@ exports.startProxy = function (host, port, listenPort, version, offlineUsername,
                 // client.write(meta.name, data)
                 client.writeRaw(raw)
               }
-              callback(direction, meta, data, id, [...raw], canUseScripting, packetValid)
+              callback(direction, meta, data, id, raw, canUseScripting, packetValid)
               if (meta.name === 'set_compression') {
                 client.compressionThreshold = data.threshold
               } // Set compression
@@ -187,20 +187,23 @@ exports.startProxy = function (host, port, listenPort, version, offlineUsername,
         targetClient.on('packet', function (data, meta, buffer, fullBuffer) {
           if (client.state !== states.PLAY || meta.state !== states.PLAY) { return }
 
-          let packetValid = false
-          try {
-            const packetBuff = client.serializer.createPacketBuffer({ name: meta.name, params: data })
-            if (!bufferEqual(fullBuffer, packetBuff)) {
-              console.log('client<-server: Error in packet ' + meta.state + '.' + meta.name)
-              console.log('received buffer', fullBuffer.toString('hex'))
-              console.log('produced buffer', packetBuff.toString('hex'))
-              console.log('received length', fullBuffer.length)
-              console.log('produced length', packetBuff.length)
-            } else {
-              packetValid = true
+          let packetValid = true
+          if (fullBuffer.length <= 16384) {
+            packetValid = false
+            try {
+              const packetBuff = client.serializer.createPacketBuffer({ name: meta.name, params: data })
+              if (!bufferEqual(fullBuffer, packetBuff)) {
+                console.log('client<-server: Error in packet ' + meta.state + '.' + meta.name)
+                console.log('received buffer', fullBuffer.toString('hex'))
+                console.log('produced buffer', packetBuff.toString('hex'))
+                console.log('received length', fullBuffer.length)
+                console.log('produced length', packetBuff.length)
+              } else {
+                packetValid = true
+              }
+            } catch (e) {
+              // TODO: handle?
             }
-          } catch (e) {
-            // TODO: handle?
           }
           handleClientboundPacket(data, meta, fullBuffer, packetValid)
           /* if (client.state === states.PLAY && brokenPackets.indexOf(packetId.value) !=== -1)
