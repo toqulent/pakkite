@@ -1,131 +1,56 @@
-name: Build pakkite
+name: Build
 
-on: push
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
-  build-job:
+  build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-      with:
-        submodules: true
+      - uses: actions/checkout@v4
 
-    - name: Set up Node
-      uses: actions/setup-node@v1
-      with:
-        node-version: 16.x
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
 
-    - name: Set up Java
-      uses: actions/setup-java@v1
-      with:
-        java-version: 1.8
+      - run: npm install
 
-    - name: Install Wine
-      run: sudo apt update && sudo apt install wine64
+      - name: Package
+        run: |
+          npx electron-forge package --platform win32 --arch x64
+          npx electron-forge package --platform linux --arch x64
+          npx electron-forge package --platform darwin --arch x64
 
-    - name: Install node-prune
-      run: curl -sf https://gobinaries.com/tj/node-prune | sh
+      - name: Archive builds
+        run: |
+          mv out/pakkite-win32-x64 pakkite-windows-x64
+          mv out/pakkite-linux-x64 pakkite-linux-x64
+          mv out/pakkite-darwin-x64 pakkite-macos-x64
+          chmod +x pakkite-linux-x64/pakkite
+          zip -r -y pakkite-windows-x64.zip pakkite-windows-x64
+          zip -r -y pakkite-linux-x64.zip pakkite-linux-x64
+          zip -r -y pakkite-macos-x64.zip pakkite-macos-x64
 
-    - run: npm install
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pakkite-${{ github.run_number }}
+          path: |
+            pakkite-windows-x64.zip
+            pakkite-linux-x64.zip
+            pakkite-macos-x64.zip
 
-    - name: Build for Windows
-      run: |
-        npx electron-forge package --platform win32
-        cd out/pakkite-win32-x64/resources/app/; node-prune
-
-    - name: Build for Linux
-      run: |
-        npx electron-forge package --platform linux
-        cd out/pakkite-linux-x64/resources/app/; node-prune
-
-    - run: chmod +x out/pakkite-linux-x64/pakkite
-
-    - name: Build for macOS
-      run: |
-        npx electron-forge package --platform darwin
-        cd out/pakkite-darwin-x64/pakkite.app/Contents/Resources/app/; node-prune
-
-    - name: Create archives for new release
-      if: ${{ github.ref == 'refs/heads/master' }}
-      run: |
-        mv out/pakkite-win32-x64 pakkite-windows-x64
-        mv out/pakkite-linux-x64 pakkite-linux-x64
-        mv out/pakkite-darwin-x64 pakkite-macos-x64
-        zip -r -y out/pakkite-windows-x64.zip pakkite-windows-x64/
-        zip -r -y out/pakkite-linux-x64.zip pakkite-linux-x64/
-        zip -r -y out/pakkite-macos-x64.zip pakkite-macos-x64/
-
-    - name: Create release
-      id: create_release
-      uses: actions/create-release@v1
-      if: ${{ github.ref == 'refs/heads/master' }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: github-${{ github.run_number }}
-        release_name: GitHub build ${{ github.run_number }}
-        body: github-${{ github.run_number }}
-
-    - name: Upload Windows build
-      uses: actions/upload-release-asset@v1
-      if: ${{ github.ref == 'refs/heads/master' }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: out/pakkite-windows-x64.zip
-        asset_name: pakkite-windows-x64-v${{ github.run_number }}.zip
-        asset_content_type: application/zip
-
-    - name: Upload Linux build
-      uses: actions/upload-release-asset@v1
-      if: ${{ github.ref == 'refs/heads/master' }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: out/pakkite-linux-x64.zip
-        asset_name: pakkite-linux-x64-v${{ github.run_number }}.zip
-        asset_content_type: application/zip
-
-    - name: Upload macOS build
-      uses: actions/upload-release-asset@v1
-      if: ${{ github.ref == 'refs/heads/master' }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: out/pakkite-macos-x64.zip
-        asset_name: pakkite-macos-x64-v${{ github.run_number }}.zip
-        asset_content_type: application/zip
-
-    - name: Prepare to upload artifacts
-      if: ${{ github.ref != 'refs/heads/master' }}
-      run: |
-        mkdir out/windows
-        mkdir out/linux
-        mkdir out/macos
-        mv out/pakkite-win32-x64 out/windows/pakkite-windows-x64
-        mv out/pakkite-linux-x64 out/linux/pakkite-linux-x64
-        mv out/pakkite-darwin-x64 out/macos/pakkite-macos-x64
-
-    - name: Upload Windows artifact
-      uses: actions/upload-artifact@v2
-      if: ${{ github.ref != 'refs/heads/master' }}
-      with:
-        name: pakkite-windows-x64
-        path: out/windows/
-
-    - name: Upload Linux artifact
-      uses: actions/upload-artifact@v2
-      if: ${{ github.ref != 'refs/heads/master' }}
-      with:
-        name: pakkite-linux-x64
-        path: out/linux/
-
-    - name: Upload macOS artifact
-      uses: actions/upload-artifact@v2
-      if: ${{ github.ref != 'refs/heads/master' }}
-      with:
-        name: pakkite-macos-x64
-        path: out/macos/
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ github.run_number }}
+          name: Build ${{ github.run_number }}
+          files: |
+            pakkite-windows-x64.zip
+            pakkite-linux-x64.zip
+            pakkite-macos-x64.zip
