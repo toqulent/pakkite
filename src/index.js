@@ -2,8 +2,7 @@ const { program } = require('commander');
 
 program
   .option('-a, --autostart', 'Automatically starts the program without the start window (all below options must be set)')
-  .option('-e, --platform <platform>', 'Platform (accepted values: java, bedrock)')
-  .option('-v, --version <version>', 'The version to use (not needed for Bedrock)')
+  .option('-v, --version <version>', 'The version to use')
   .option('-c, --connect <address>', 'The address of the server to connect to')
   .option('-p, --connect-port  <port>', 'The port of the server to connect to')
   .option('-P, --listen-port  <port>', 'The port to listen on')
@@ -12,7 +11,7 @@ program.parse(process.argv)
 const options = program.opts()
 
 if (options.autostart) {
-    if (!options.platform || !(options.version || options.platform !== 'java') || !options.connect || !options.connectPort || !options.listenPort) {
+    if (!options.version || !options.connect || !options.connectPort || !options.listenPort) {
         console.log('Not all required options were passed.')
         program.help()
     }
@@ -33,7 +32,6 @@ const resourcesPath = fs.existsSync(process.resourcesPath.concat('/app/'))
 
 
 const javaProxy = require('./proxy/java/proxy.js')
-const bedrockProxy = require('./proxy/bedrock/proxy.js')
 const packetHandler = require('./packetHandler.js')
 const setupDataFolder = require('./setupDataFolder.js')
 
@@ -43,7 +41,7 @@ const unhandled = require('electron-unhandled')
 
 const osDataFolder = app.getPath('appData')
 
-const dataFolder = setupDataFolder.setup(osDataFolder, resourcesPath)
+const dataFolder = setupDataFolder.setup(osDataFolder)
 
 var currentScriptFile = null
 
@@ -175,7 +173,6 @@ function createWindow() {
             connectAddress: options.connect,
             connectPort: options.connectPort,
             listenPort: options.listenPort,
-            platform: options.platform,
             version: options.version
         })
     } else {
@@ -219,11 +216,7 @@ function showAuthCode (data) {
 }
 
 function startProxy (args) {
-    if (args.platform === 'java') {
-        proxy = javaProxy
-    } else {
-        proxy = bedrockProxy
-    }
+    proxy = javaProxy
 
     const win = BrowserWindow.getAllWindows()[0]
 

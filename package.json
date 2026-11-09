@@ -2,7 +2,7 @@
   "name": "pakkite",
   "productName": "pakkite",
   "version": "1.0.0",
-  "description": "A packet monitor for Minecraft Java and Minecraft Bedrock",
+  "description": "A packet monitor for Minecraft: Java Edition",
   "main": "src/index.js",
   "scripts": {
     "start": "electron-forge start",
@@ -52,14 +52,12 @@
     "electron-unhandled": "^3.0.2",
     "electron-window-state": "^5.0.3",
     "escape-html": "^1.0.3",
-    "md5-file": "^5.0.0",
     "minecraft-data": "^3.36.1",
     "minecraft-folder-path": "^1.1.0",
     "minecraft-protocol": "^1.43.0",
     "node-eval": "^2.0.0",
     "patch-package": "^6.4.7",
-    "source-map-support": "^0.5.19",
-    "ws": "^7.4.6"
+    "source-map-support": "^0.5.19"
   },
   "optionalDependencies": {
     "bufferutil": "^4.0.2",
