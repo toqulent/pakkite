@@ -262,7 +262,7 @@ input.filter {
   width: 100%;
 }
 
-#iframe, #hex-viewer {
+#iframe {
   border: 0;
   width: 100%;
   height: 100%;
