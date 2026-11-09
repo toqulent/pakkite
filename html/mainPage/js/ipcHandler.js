@@ -22,11 +22,10 @@ exports.setup = function (passedSharedVars) {
   })
 
   sharedVars.ipcRenderer.on('copyTeleportCommand', (event, arg) => {
-    console.log(sharedVars.allPackets)
     const ipcMessage = JSON.parse(arg)
     const data = sharedVars.allPackets[ipcMessage.id].data
 
-    let clipData = '/tp @p ' + ((datasharedVars.packetsUpdated = false.flags & 0x01) ? '~' : '') + ((data.x === 0 && (data.flags & 0x01)) ? '' : data.x) +
+    let clipData = '/tp @p ' + ((data.flags & 0x01) ? '~' : '') + ((data.x === 0 && (data.flags & 0x01)) ? '' : data.x) +
       ((data.flags & 0x02) ? ' ~' : ' ') + ((data.y === 0 && (data.flags & 0x03)) ? '' : data.y) +
       ((data.flags & 0x04) ? ' ~' : ' ') + ((data.z === 0 && (data.flags & 0x04)) ? '' : data.z)
 
@@ -54,7 +53,6 @@ exports.setup = function (passedSharedVars) {
   })
 
   sharedVars.ipcRenderer.on('updateFiltering', (event, arg) => {
-    console.log('update!!!')
     sharedVars.proxyCapabilities = JSON.parse(sharedVars.ipcRenderer.sendSync('proxyCapabilities', ''))
     window.updateFilteringPackets()
   })

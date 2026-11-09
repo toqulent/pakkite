@@ -1,5 +1,4 @@
 const {app, BrowserWindow, ipcMain, clipboard, Menu, dialog, shell } = require('electron')
-app.allowRendererProcessReuse = true
 
 const fs = require('fs')
 const Store = require('electron-store')
@@ -110,7 +109,7 @@ function createWindow() {
 
     // Create the browser window.
     const win = new BrowserWindow({
-        height: store.get('authConsentGiven') ? 550 : 650,
+        height: 650,
         width: 480,
         // resizable: false,
         // frame: false,
@@ -158,9 +157,6 @@ app.on('window-all-closed', () => {
     // On macOS it is common for applications and their menu bar
     // to stay active until the user quits explicitly with Cmd + Q
     if (process.platform !== 'darwin') {
-        if (proxy) {
-            proxy.end()
-        }
         app.quit()
     }
 })
@@ -190,7 +186,7 @@ function startProxy (args) {
 
     packetHandler.init(BrowserWindow.getAllWindows()[0], ipcMain, proxy)
     proxy.startProxy(args.connectAddress, args.connectPort, args.listenPort, args.version, args.offlineUsername, args.onlineMode,
-      args.consent, packetHandler.packetHandler, packetHandler.messageHandler , dataFolder, () => {
+      packetHandler.packetHandler, packetHandler.messageHandler , dataFolder, () => {
           win.send('updateFiltering', '')
       }, showAuthCode)
 
@@ -294,7 +290,7 @@ ipcMain.on('saveAsScript', async (event, arg) => {
 
 ipcMain.on('saveScript', async (event, arg) => {
     const win = BrowserWindow.getAllWindows()[0]
-    const validScriptPath = (currentScriptFile != null || fs.existsSync(currentScriptFile) )
+    const validScriptPath = (currentScriptFile != null && fs.existsSync(currentScriptFile))
 
     win.send('disableBtnScriptSave')
 

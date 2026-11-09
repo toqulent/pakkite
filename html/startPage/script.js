@@ -4,16 +4,6 @@ const minecraftData = require('minecraft-data')
 
 const store = new Store()
 
-/* const customTitlebar = require('custom-electron-titlebar');
-
-new customTitlebar.Titlebar({
-    backgroundColor: customTitlebar.Color.fromHex('#FFF')
-}); */
-
-// if (!store.get('authConsentGiven')) {
-//   document.getElementById('consent-row').style.display = 'flex'
-// }
-
 let isLoading = false
 let connectAddress
 let connectPort
@@ -102,13 +92,8 @@ window.startProxy = function (event)
   connectAddress = (connectAddress === '') ? '127.0.0.1' : connectAddress
   connectPort = (connectPort === '') ? '25565' : connectPort
   listenPort = (listenPort === '') ? '25566' : listenPort
-  // if (document.getElementById('consent').checked) {
-  //   store.set('authConsentGiven', true)
-  // }
-  store.set('authConsentGiven', false)
   // TODO: Validate data (e.g. port range)
   ipcRenderer.send('startProxy', JSON.stringify({
-    consent: store.get('authConsentGiven'),
     connectAddress: connectAddress,
     connectPort: connectPort,
     listenPort: listenPort,

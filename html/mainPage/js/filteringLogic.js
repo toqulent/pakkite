@@ -33,7 +33,3 @@ exports.packetFilteredByFilterBox = function (packet, filter, hiddenPackets, inv
     return !result
   }
 }
-
-exports.packetCollapsed = function (packet, filter, hiddenPackets) {
-  return packet.meta.name === 'position'
-}

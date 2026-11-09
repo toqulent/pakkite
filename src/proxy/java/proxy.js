@@ -1,7 +1,6 @@
 // Modified from https://github.com/PrismarineJS/node-minecraft-protocol/blob/master/examples/proxy/proxy.js
 
 const mc = require('minecraft-protocol')
-const minecraftFolder = require('minecraft-folder-path')
 
 const states = mc.states
 
@@ -42,10 +41,9 @@ exports.capabilities = {
 
 let authWindowOpen = false
 
-exports.startProxy = function (host, port, listenPort, version, offlineUsername, onlineMode, authConsent, callback, messageCallback, dataFolder,
+exports.startProxy = function (host, port, listenPort, version, offlineUsername, onlineMode, callback, messageCallback, dataFolder,
                                updateFilteringCallback, authCodeCallback) {
   storedCallback = callback
-  authConsent = false
 
   // . cannot be in a JSON property name with electron-store
   exports.capabilities.versionId = 'java-node-minecraft-protocol-' + version.split('.').join('-')
@@ -63,7 +61,6 @@ exports.startProxy = function (host, port, listenPort, version, offlineUsername,
   }
   isPortTaken(listenPort, (err, taken) => {
     // TODO: Handle errors
-    console.log(err, taken)
     if (taken) {
       console.log('call')
       // Wait for the renderer to be ready
@@ -108,18 +105,13 @@ exports.startProxy = function (host, port, listenPort, version, offlineUsername,
           console.log(err.stack)
           if (!endedTargetClient) { targetClient.end('Error') }
         })
-        // if (authConsent) {
-        //   console.log('Will attempt to use launcher_profiles.json for online mode login data')
-        // } else {
-        //   console.warn('Consent not given to use launcher_profiles.json - automatic online mode will not work')
-        // }
         const clientOptions = {
           host: host,
           port: port,
           username: !onlineMode && offlineUsername ? offlineUsername : client.username,
           keepAlive: false,
           version: version,
-          profilesFolder: authConsent ? minecraftFolder : dataFolder,
+          profilesFolder: dataFolder,
           auth: onlineMode ? 'microsoft' : 'offline',
           onMsaCode: function (data) {
             console.log('MSA code:', data.user_code)
@@ -267,8 +259,6 @@ exports.startProxy = function (host, port, listenPort, version, offlineUsername,
     }
   })
 }
-
-exports.end = function () {}
 
 exports.writeToClient = function (meta, data, noCallback) {
   if (typeof meta === 'string') {

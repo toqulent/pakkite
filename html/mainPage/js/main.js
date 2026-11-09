@@ -10,7 +10,6 @@ const filteringLogic = require('./js/filteringLogic.js')
 // const escapeHtml = require('escape-html'); Already defined in my customised version of jsonTree (I just added HTML escaping)
 
 let currentPacket
-let currentPacketType
 
 const filterInput = document.getElementById('filter')
 
@@ -50,7 +49,6 @@ function toggleCheckbox (box, packetName, direction) {
   // console.log('Toggled visibility of', packetName, 'to', box.checked)
   const index = sharedVars.hiddenPackets[direction].indexOf(packetName)
   const currentlyHidden = index !== -1
-  console.log(`index ${index} check ${check} currentlyHidden ${currentlyHidden}`);
   if (check && currentlyHidden) {
     // Remove it from the hidden packets
     sharedVars.hiddenPackets[direction].splice(index, 1)
@@ -239,10 +237,8 @@ const allClientboundPackets = []
 
 window.updateFilteringPackets = () => {
   function addPacketsToFiltering (packetsObject, direction, appendTo) {
-    console.log('packets', packetsObject)
     for (const key in packetsObject) {
       if (packetsObject.hasOwnProperty(key)) {
-        console.log(!sharedVars.hiddenPackets[direction].includes(packetsObject[key]))
         filteringPackets.innerHTML +=
           `<li id="${packetsObject[key].replace(/"/g, '&#39;') + '-' + direction}" class="packet ${direction}">
             <label>
@@ -252,7 +248,6 @@ window.updateFilteringPackets = () => {
               <span class="name">${escapeHtml(packetsObject[key])}</span>
             </label>
           </li>`
-        console.log(key + ' -> ' + packetsObject[key])
         appendTo.push(packetsObject[key])
       }
     }
@@ -385,7 +380,6 @@ function deselectPacket () {
     removeOrAddSelection(currentPacket, false)
   }
   currentPacket = undefined
-  currentPacketType = undefined
   sharedVars.packetDom.getTreeElement().firstElementChild.innerHTML = 'No packet selected!'
   document.body.classList.remove('packetSelected')
   document.body.classList.add('noPacketSelected')
@@ -428,8 +422,6 @@ window.packetClick = function (id) { // window. stops standardjs from complainin
   }
 
   currentPacket = id
-  // const element = document.getElementById('packet' + id)
-  currentPacketType = sharedVars.allPackets[id].name
   removeOrAddSelection(currentPacket, true)
   document.body.classList.remove('noPacketSelected')
   document.body.classList.add('packetSelected')
@@ -492,17 +484,9 @@ window.openMenu = function (evt, MenuName, id) { // window. stops standardjs fro
 }
 
 document.body.addEventListener('contextmenu', (event) => {
-  if (event.srcElement === null) return
+  const target = event.target.closest('li')
 
-  let target = event.srcElement
-
-  let attempts = 0
-  while (target !== null && target.tagName !== 'LI' && attempts < 5) {
-    target = target.parentElement
-    attempts++
-  }
-
-  if (!target || target.tagName !== 'LI') {
+  if (!target) {
     return
   }
 
@@ -588,20 +572,13 @@ if (sharedVars.proxyCapabilities.wikiVgPage) {
 
 // https://gomakethings.com/finding-the-next-and-previous-sibling-elements-that-match-a-selector-with-vanilla-js/
 function getPreviousSibling (elem, selector) {
-
-  // Get the next sibling element
-  var sibling = elem.previousElementSibling;
-
-  // If there's no selector, return the first sibling
-  if (!selector) return sibling;
-
   // If the sibling matches our selector, use it
   // If not, jump to the next sibling and continue the loop
+  var sibling = elem.previousElementSibling;
   while (sibling) {
     if (sibling.matches(selector)) return sibling;
     sibling = sibling.previousElementSibling;
   }
-
 };
 
 function scrollIdIntoView (id, bound) {

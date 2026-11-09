@@ -55,33 +55,12 @@ exports.addPacketToDOM = function (packet) {
         </div>
         <span class="time">${escapeHtml(formatTime(packet.time))}</span>
       </li>`])
-  /* if (!noUpdate) {/html/mainPage/index.html/html/mainPage/index.html
-    clusterize.append(sharedVars.allPacketsHTML.slice(-1)[0]);
-    if (wasScrolledToBottom) {
-      sharedVars.packetList.parentElement.scrollTop = sharedVars.packetList.parentElement.scrollHeight;
-    }
-  } */
   if (isHidden) {
     sharedVars.hiddenPacketsAmount += 1
   } else {
     sharedVars.packetsUpdated = true
   }
   updateHidden()
-}
-
-function refreshPackets () {
-  // TODO: Is this needed?
-  /* const wasScrolledToBottom = (sharedVars.packetList.parentElement.scrollTop >= (sharedVars.packetList.parentElement.scrollHeight - sharedVars.packetList.parentElement.offsetHeight))
-
-  sharedVars.allPacketsHTML = []
-  sharedVars.allPackets.forEach(function (packet) {
-    // noUpdate is true as we want to manually update at the end
-    addPacketToDOM(packet, true)
-  })
-  clusterize.update(sharedVars.allPacketsHTML)
-  /if (wasScrolledToBottom) {
-    sharedVars.packetList.parentElement.scrollTop = sharedVars.packetList.parentElement.scrollHeight
-  } */
 }
 
 function updateHidden () {
@@ -105,8 +84,6 @@ exports.addPacket = function (data) {
   data.uid = sharedVars.allPackets.length - 1
   exports.addPacketToDOM(data)
 }
-
-// TODO: use shared var
 
 exports.getTreeElement = function () {
   return treeElement
