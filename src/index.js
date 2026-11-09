@@ -1,22 +1,3 @@
-const { program } = require('commander');
-
-program
-  .option('-a, --autostart', 'Automatically starts the program without the start window (all below options must be set)')
-  .option('-v, --version <version>', 'The version to use')
-  .option('-c, --connect <address>', 'The address of the server to connect to')
-  .option('-p, --connect-port  <port>', 'The port of the server to connect to')
-  .option('-P, --listen-port  <port>', 'The port to listen on')
-
-program.parse(process.argv)
-const options = program.opts()
-
-if (options.autostart) {
-    if (!options.version || !options.connect || !options.connectPort || !options.listenPort) {
-        console.log('Not all required options were passed.')
-        program.help()
-    }
-}
-
 const {app, BrowserWindow, ipcMain, clipboard, Menu, dialog, shell } = require('electron')
 app.allowRendererProcessReuse = true
 
@@ -164,19 +145,7 @@ function createWindow() {
 
     win.setMenu(null)
     // and load the index.html of the app.
-    if (options.autostart) {
-        startProxy({
-            // TODO: make online-mode working in headless via command-line parameters
-            consent: false,
-            onlineMode: false,
-            connectAddress: options.connect,
-            connectPort: options.connectPort,
-            listenPort: options.listenPort,
-            version: options.version
-        })
-    } else {
-        win.loadFile('html/startPage/index.html')
-    }
+    win.loadFile('html/startPage/index.html')
 }
 
 // This method will be called when Electron has finished
@@ -220,7 +189,7 @@ function startProxy (args) {
     const win = BrowserWindow.getAllWindows()[0]
 
     packetHandler.init(BrowserWindow.getAllWindows()[0], ipcMain, proxy)
-    proxy.startProxy(args.connectAddress, args.connectPort, args.listenPort, args.version, args.onlineMode,
+    proxy.startProxy(args.connectAddress, args.connectPort, args.listenPort, args.version, args.offlineUsername, args.onlineMode,
       args.consent, packetHandler.packetHandler, packetHandler.messageHandler , dataFolder, () => {
           win.send('updateFiltering', '')
       }, showAuthCode)

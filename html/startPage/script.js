@@ -20,6 +20,7 @@ let connectPort
 let listenPort
 let version
 let onlineMode
+let offlineUsername
 
 populateVersions()
 loadSetting('lastVersion', 'version', 'version', document.getElementById('version').options[0].value)
@@ -30,6 +31,16 @@ loadSetting('lastConnectAddress', 'connectAddress', 'connect-address', '127.0.0.
 loadSetting('lastConnectPort', 'connectPort', 'connect-port', '25565')
 loadSetting('lastListenPort', 'listenPort', 'listen-port', '25566')
 loadSetting('lastOnlineMode', 'onlineMode', 'auth-online', true)
+loadSetting('lastOfflineUsername', 'offlineUsername', 'offline-username', 'Player')
+
+function updateOfflineRow ()
+{
+  const showOfflineRow = !document.getElementById('auth-online').checked
+  document.getElementById('offline-row').style.display = showOfflineRow ? 'block' : 'none'
+}
+
+document.getElementById('auth-online').addEventListener('change', updateOfflineRow)
+updateOfflineRow()
 
 function populateVersions ()
 {
@@ -51,6 +62,7 @@ function saveSettings ()
   store.set('lastConnectPort', connectPort)
   store.set('lastListenPort', listenPort)
   store.set('lastOnlineMode', onlineMode)
+  store.set('lastOfflineUsername', offlineUsername)
 }
 
 function loadSetting (name, varname, elementID, defaultValue)
@@ -74,6 +86,7 @@ function updateVars ()
   listenPort = document.getElementById('listen-port').value
   version = document.getElementById('version').value
   onlineMode = document.getElementById('auth-online').checked
+  offlineUsername = document.getElementById('offline-username').value
 }
 
 window.startProxy = function (event)
@@ -101,5 +114,6 @@ window.startProxy = function (event)
     listenPort: listenPort,
     version: version,
     onlineMode: onlineMode,
+    offlineUsername: offlineUsername,
   }))
 }

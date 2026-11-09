@@ -42,7 +42,7 @@ exports.capabilities = {
 
 let authWindowOpen = false
 
-exports.startProxy = function (host, port, listenPort, version, onlineMode, authConsent, callback, messageCallback, dataFolder,
+exports.startProxy = function (host, port, listenPort, version, offlineUsername, onlineMode, authConsent, callback, messageCallback, dataFolder,
                                updateFilteringCallback, authCodeCallback) {
   storedCallback = callback
   authConsent = false
@@ -116,7 +116,7 @@ exports.startProxy = function (host, port, listenPort, version, onlineMode, auth
         const clientOptions = {
           host: host,
           port: port,
-          username: client.username,
+          username: !onlineMode && offlineUsername ? offlineUsername : client.username,
           keepAlive: false,
           version: version,
           profilesFolder: authConsent ? minecraftFolder : dataFolder,
