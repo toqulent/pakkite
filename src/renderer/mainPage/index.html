@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width" name="viewport">
+    <title>pakkite</title>
+    <link href="style.css" rel="stylesheet" type="text/css"/>
+    <link href="../scrollbar.css" rel="stylesheet" type="text/css"/>
+    <link href="../shared.css" rel="stylesheet" type="text/css"/>
+    <link href="../clusterize.css" rel="stylesheet" type="text/css"/>
+    <link href="../jsonTree.css" rel="stylesheet"/>
+    <link href="../jsonTreeCustom.css" rel="stylesheet"/>
+    <script src="../js/split.min.js"></script>
+    <link href="../codemirror/lib/codemirror.css" rel=stylesheet>
+    <script src="../codemirror/lib/codemirror.js"></script>
+    <script src="../codemirror/mode/javascript/javascript.js"></script>
+    <script src="../codemirror/addon/edit/closebrackets.js"></script>
+    <script src="../codemirror/addon/display/autorefresh.js"></script>
+    <link href="../codemirror/theme/darcula.css" rel="stylesheet">
+</head>
+<body class="noPacketSelected timeNotShown">
+<div class="dialog-overlay" id="dialog-overlay">
+    <div class="dialog" id="dialog">
+
+    </div>
+</div>
+
+<div class="error" id="error"></div>
+<script src="js/errorHandler.js"></script>
+
+<div class="topbar-colour"></div>
+
+<div class="topbar">
+
+
+    <!-- W3Schools code !-->
+    <div class="tab">
+        <button class="back-button" id="backButton">&lt;</button>
+        <button class="tab-button tablinks-topmenu active" data-panel="Main" data-group="-topmenu">Main</button>
+        <button class="tab-button tablinks-topmenu" data-panel="File" data-group="-topmenu">File</button>
+        <!--  <button class="tab-button tablinks-topmenu" data-panel="Packet" data-group="-topmenu">Packet</button> -->
+        <button class="tab-button tablinks-topmenu" data-panel="Filtering" data-group="-topmenu">Filtering</button>
+        <button class="tab-button tablinks-topmenu" id="scriptingTab" data-panel="Scripting" data-group="-topmenu">Scripting</button>
+        <button class="tab-button tablinks-topmenu" data-panel="Settings" data-group="-topmenu">Settings</button>
+    </div>
+
+    <div class="tabcontent tabcontent-topmenu" id="Main" style="display: block;">
+        <div class="whenNoPacketSelected">
+            <div style="padding: 8px 0;">Please select a packet!</div>
+        </div>
+        <div class="whenPacketSelected">
+            <div style="padding: 8px 0;">Quick actions</div>
+            <button id="hideAllType" style="width: 200px;">Hide all packets of this type</button>
+            <button id="editAndResend" style="width: 200px;">Edit and resend</button>
+        </div>
+    </div>
+
+    <div class="tabcontent tabcontent-topmenu" id="File">
+        <div style="padding: 8px 0;">Packet log</div>
+        <button id="saveLog">Save</button>
+        <button id="loadLog">Load</button>
+    </div>
+
+    <!-- <div class="tabcontent tabcontent-topmenu" id="Packet">
+        <h3>Packet</h3>
+    </div> -->
+
+    <div class="tabcontent tabcontent-topmenu fullpage" id="Filtering">
+        <h3>Filtering</h3>
+        Tick the box to show packets
+
+        <div id="mainPresets">
+            <button id="showAllButton" style="margin-left: 16px;">Show all
+            </button>
+
+            <button id="hideAllButton" style="margin-left: 8px;">Hide all</button>
+
+            <button id="defaultHiddenButton" style="margin-left: 8px;">Defaults</button>
+        </div>
+        <br><br>
+        <div class="box" style="height: calc(100% - 118px);">
+            <ul class="packetlist" id="filtering-packets">
+
+            </ul>
+        </div>
+    </div>
+
+    <div class="tabcontent tabcontent-topmenu fullpage" id="Scripting">
+        <h3>Scripting (beta)</h3>
+        Scripting allows you to modify and inject packets on-the-fly
+        <br><br>
+        <label class="switch">
+            <input id="enableScripting" type="checkbox">
+            <span class="slider round"></span>
+        </label>
+        <label for="enableScripting">Enable scripting</label>
+        <button id="btnScriptLoad" style="margin-left: 16px;">Load</button>
+        <button id="btnScriptSave" style="margin-left: 8px;" disabled>Save</button>
+        <button id="btnScriptSaveAs" style="margin-left: 8px;">Save as..</button>
+        <br><br>
+        <textarea id="scriptEditor"></textarea>
+        <br>
+        <a href="#" id="resetScript">Reset</a>
+    </div>
+
+    <div class="tabcontent tabcontent-topmenu fullpage" id="Settings">
+    </div>
+
+</div>
+
+<div class="search">
+    <input class="filter" id="filter" placeholder="Filter by name, ID or content"
+           type="text">
+</div>
+
+<div class="container">
+    <div class="split" id="packets">
+        <div class="toolbar">
+            <a href="#" id="clearPackets">Clear</a>
+            <span id="hiddenPackets"></span>
+        </div>
+        <div class="box clusterize-scroll" id="packetcontainer">
+            <ul class="packetlist clusterize-content" id="packetlist">
+
+            </ul>
+        </div>
+    </div>
+    <div class="split" id="sidebar">
+        <div class="toolbar tab">
+            <button class="tab-button tablinks-rightpanel active" data-panel="tree" data-group="-rightpanel">Data</button>
+            <button class="tab-button tablinks-rightpanel" id="wiki-button" data-panel="wikivg" data-group="-rightpanel">wiki.vg</button>
+        </div>
+        <div class="box" id="sidebar-box">
+            <div class="tabcontent tabcontent-rightpanel" id="tree" style="display: block;">
+
+            </div>
+            <div class="tabcontent tabcontent-rightpanel" id="wikivg" style="height: 100%; padding: 0px; overflow: hidden;">
+                <iframe id="iframe"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../js/jsonTree.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

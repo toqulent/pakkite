@@ -3,7 +3,7 @@
   "productName": "pakkite",
   "version": "1.0.0",
   "description": "A packet monitor for Minecraft: Java Edition",
-  "main": "src/index.js",
+  "main": "src/main/index.js",
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",

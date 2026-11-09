@@ -1,8 +1,11 @@
+/* global jsonTree, escapeHtml */
+
+const state = require('./state.js').state
+const settings = require('./settings.js')
+const filteringLogic = require('./filteringLogic.js')
+
 let tree
 let treeElement
-let sharedVars
-
-const filteringLogic = require('./filteringLogic.js')
 
 function trimData (data) { // Function to trim the size of stringified data for previews
   if (data === undefined) {
@@ -11,7 +14,7 @@ function trimData (data) { // Function to trim the size of stringified data for 
   }
 
   let newData
-  if (sharedVars.proxyCapabilities.jsonData) {
+  if (state.proxyCapabilities.jsonData) {
     newData = Object.assign({}, data)
     Object.entries(newData).forEach(function (entry) {
       try {
@@ -38,16 +41,24 @@ function trimData (data) { // Function to trim the size of stringified data for 
 
 function formatTime (ms) {
   // Based on https://stackoverflow.com/a/50409993/4012708
-  return new Date(new Date(ms).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().split("T")[1].replace(/[0-9]Z$/, '');
+  return new Date(new Date(ms).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[1].replace(/[0-9]Z$/, '')
+}
+
+exports.updateHiddenCounter = function () {
+  const hiddenPacketsCounter = document.getElementById('hiddenPackets')
+  hiddenPacketsCounter.innerHTML = state.hiddenPacketsAmount + ' hidden packets'
+  if (state.hiddenPacketsAmount !== 0) {
+    hiddenPacketsCounter.innerHTML += ' (<a href="#">show all</a>)'
+  }
 }
 
 exports.addPacketToDOM = function (packet) {
-  const isHidden = filteringLogic.packetFilteredByFilterBox(packet, sharedVars.lastFilter, sharedVars.hiddenPackets,
-    // TODO: cache these?
-    sharedVars.settings.getSetting('inverseFiltering'), sharedVars.settings.getSetting('regexFilter'),
-    sharedVars)
-  sharedVars.allPacketsHTML.push([
-    `<li id="packet${packet.uid}" onclick="packetClick(${packet.uid})" class="packet ${packet.direction} ${isHidden ? 'filter-hidden' : 'filter-shown'} ${packet.packetValid ? '' : 'invalid'}">
+  const isHidden = filteringLogic.packetIsHidden(packet, state.lastFilter,
+    settings.getSetting('regexFilter') ? buildRegex(state.lastFilter) : undefined,
+    state.hiddenPackets,
+    settings.getSetting('inverseFiltering'))
+  state.allPacketsHTML.push([
+    `<li data-uid="${packet.uid}" class="packet ${packet.direction} ${isHidden ? 'filter-hidden' : 'filter-shown'} ${packet.packetValid ? '' : 'invalid'}">
         <div class="main-data">
           <span class="id">${escapeHtml(packet.hexIdString)}</span>
           <span class="name">${escapeHtml(packet.meta.name)}</span>
@@ -56,23 +67,24 @@ exports.addPacketToDOM = function (packet) {
         <span class="time">${escapeHtml(formatTime(packet.time))}</span>
       </li>`])
   if (isHidden) {
-    sharedVars.hiddenPacketsAmount += 1
+    state.hiddenPacketsAmount += 1
   } else {
-    sharedVars.packetsUpdated = true
+    state.packetsUpdated = true
   }
-  updateHidden()
+  exports.updateHiddenCounter()
 }
 
-function updateHidden () {
-  document.getElementById("hiddenPackets").innerHTML = sharedVars.hiddenPacketsAmount + ' hidden packets';
-  if (sharedVars.hiddenPacketsAmount !== 0) {
-     document.getElementById("hiddenPackets").innerHTML += ' (<a href="#" onclick="showAllPackets()">show all</a>)'
+function buildRegex (filter) {
+  try {
+    return new RegExp(filter)
+  } catch (err) {
+    // TODO: handle
+    console.error(err)
+    return new RegExp('')
   }
 }
 
-exports.setup = function (passedSharedVars) {
-  sharedVars = passedSharedVars
-
+exports.setup = function () {
   treeElement = document.getElementById('tree')
   tree = jsonTree.create({}, treeElement)
 
@@ -80,8 +92,8 @@ exports.setup = function (passedSharedVars) {
 }
 
 exports.addPacket = function (data) {
-  sharedVars.allPackets.push(data)
-  data.uid = sharedVars.allPackets.length - 1
+  state.allPackets.push(data)
+  data.uid = state.allPackets.length - 1
   exports.addPacketToDOM(data)
 }
 

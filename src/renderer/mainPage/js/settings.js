@@ -1,8 +1,7 @@
 const settingsJson = require('./settings.json')
+const state = require('./state.js').state
 
 const settingsElement = document.getElementById('Settings')
-
-let sharedVars
 
 const changeFunctions = {}
 // Prevents constant file reads/writes
@@ -14,23 +13,21 @@ exports.bindToSettingChange = function (settingId, f) {
 
 exports.getSetting = function (id) {
   if (cache[id] === undefined) {
-    if (sharedVars.store.get('settings.' + id) === undefined) {
-      sharedVars.store.set('settings.' + id, settingsJson[id].default)
+    if (state.store.get('settings.' + id) === undefined) {
+      state.store.set('settings.' + id, settingsJson[id].default)
     }
-    cache[id] = sharedVars.store.get('settings.' + id)
+    cache[id] = state.store.get('settings.' + id)
   }
   return cache[id]
 }
 
 exports.setSetting = function (settingId, value) {
   cache[settingId] = value
-  sharedVars.store.set('settings.' + settingId, value)
+  state.store.set('settings.' + settingId, value)
   if (changeFunctions[settingId]) {
     changeFunctions[settingId](value)
   }
 }
-
-window.setSetting = exports.setSetting
 
 function createToggle (settingId) {
   const toggleElement = document.createElement('label')
@@ -52,9 +49,7 @@ function createToggle (settingId) {
   return toggleElement
 }
 
-exports.setup = function (passedSharedVars) {
-  sharedVars = passedSharedVars
-
+exports.setup = function () {
   // Add line break
   settingsElement.appendChild(document.createElement('br'))
 

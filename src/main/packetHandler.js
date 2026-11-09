@@ -23,20 +23,18 @@ exports.init = function (window, passedIpcMain, passedProxy) {
   ipcMain = passedIpcMain
   proxy = passedProxy
 
-  ipcMain.on('injectPacket', (event, arg) => {
-    const ipcMessage = JSON.parse(arg)
-    if (ipcMessage.direction === 'clientbound') {
-      passedProxy.writeToClient(ipcMessage.meta, ipcMessage.data, false)
+  ipcMain.on('injectPacket', (event, message) => {
+    if (message.direction === 'clientbound') {
+      proxy.writeToClient(message.meta, message.data, false)
     } else {
-      passedProxy.writeToServer(ipcMessage.meta, ipcMessage.data, false)
+      proxy.writeToServer(message.meta, message.data, false)
     }
   })
 
-  ipcMain.on('scriptStateChange', (event, arg) => {
-    const ipcMessage = JSON.parse(arg)
-    scriptingEnabled = ipcMessage.scriptingEnabled
+  ipcMain.on('scriptStateChange', (event, message) => {
+    scriptingEnabled = message.scriptingEnabled
     proxy.setScriptingEnabled(scriptingEnabled)
-    currentScriptModule = scriptingEnabled ? _eval(ipcMessage.script, '/script.js') : undefined
+    currentScriptModule = scriptingEnabled ? _eval(message.script, '/script.js') : undefined
   })
 }
 
@@ -56,5 +54,5 @@ exports.packetHandler = function (direction, meta, data, id, raw, canUseScriptin
 }
 
 exports.messageHandler = function (header, info, fatal) {
-  mainWindow.send('message', JSON.stringify({ header: header, info: info, fatal: fatal }))
+  mainWindow.send('message', { header: header, info: info, fatal: fatal })
 }

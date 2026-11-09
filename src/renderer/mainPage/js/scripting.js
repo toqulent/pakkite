@@ -1,17 +1,27 @@
-let sharedVars
+/* global CodeMirror */
+
+const state = require('./state.js').state
+const { ipcRenderer } = require('electron')
+
+let editor
 
 exports.updateScript = function (fromCheckbox) {
   if (!((fromCheckbox === true) || document.getElementById('enableScripting').checked)) return
-  sharedVars.ipcRenderer.send('scriptStateChange', JSON.stringify({ //
+  ipcRenderer.send('scriptStateChange', {
     scriptingEnabled: document.getElementById('enableScripting').checked,
-    script: window.scriptEditor.getDoc().getValue()
-  }))
+    script: editor.getValue()
+  })
 }
 
-exports.setup = function (passedSharedVars) {
-  sharedVars = passedSharedVars
+exports.getValue = function () {
+  return editor.getValue()
+}
 
-  const defaultScript = `// See the node-minecraft-protocol docs
+exports.setValue = function (value) {
+  editor.setValue(value)
+}
+
+const defaultScript = `// See the node-minecraft-protocol docs
 // When editing your scripts, disable scripting or disconnect so
 // you don't get lots of errors.
 
@@ -30,21 +40,24 @@ exports.upstreamHandler = function (meta, data, server, client) {
 exports.downstreamHandler = function (meta, data, server, client) {
   client.sendPacket(meta, data)
 }`
-  window.resetScriptEditor = function () {
-    // document.getElementById('scriptEditor').value = defaultScript
-    window.scriptEditor.getDoc().setValue(defaultScript)
-    // reset save button
-    // todo: maybe confirm dialog, if there are unsaved changes?
-    document.getElementById('btnScriptSave').disabled = true
-    document.getElementById('btnScriptSave').title = ''
-  }
-  window.scriptEditor = CodeMirror.fromTextArea(document.getElementById('scriptEditor'), { // window. stops standardjs from complaining
+
+exports.reset = function () {
+  editor.setValue(defaultScript)
+  // reset save button
+  // todo: maybe confirm dialog, if there are unsaved changes?
+  document.getElementById('btnScriptSave').disabled = true
+  document.getElementById('btnScriptSave').title = ''
+}
+
+
+exports.setup = function () {
+  editor = CodeMirror.fromTextArea(document.getElementById('scriptEditor'), {
     lineNumbers: true,
     autoCloseBrackets: true,
     theme: 'darcula',
     autoRefresh: true
   })
-  resetScriptEditor()
+  exports.reset()
 
-  window.scriptEditor.on('change', exports.updateScript)
+  editor.on('change', exports.updateScript)
 }
