@@ -238,10 +238,11 @@ exports.startProxy = function (host, port, listenPort, version, offlineUsername,
           }
           handleServerboundPacket(packetData, meta, fullBuffer, packetValid)
         })
-        targetClient.on('end', function () {
+        targetClient.on('end', function (reason) {
           endedTargetClient = true
           console.log('Connection closed by server', '(' + host + ':' + port + ')')
-          if (!endedClient) { client.end('Connection closed by server ' + '(' + host + ':' + port + ')') }
+          const kickReason = (reason && reason !== 'socketClosed') ? reason : 'Connection closed by server ' + '(' + host + ':' + port + ')'
+          if (!endedClient) { client.end(kickReason) }
         })
         targetClient.on('error', function (err) {
           endedTargetClient = true

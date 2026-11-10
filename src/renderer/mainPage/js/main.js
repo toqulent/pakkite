@@ -2,16 +2,16 @@
 
 const { ipcRenderer } = require('electron')
 
-const state = require('./state.js').state
-const versionStore = require('./state.js')
-const packetList = require('./packetList.js')
-const filtering = require('./filtering.js')
-const dialogs = require('./dialogs.js')
-const wiki = require('./wiki.js')
-const ipcHandler = require('./ipcHandler.js')
-const settings = require('./settings.js')
-const scripting = require('./scripting.js')
-const packetDom = require('./packetDom.js')
+const state = require('./js/state.js').state
+const versionStore = require('./js/state.js')
+const packetList = require('./js/packetList.js')
+const filtering = require('./js/filtering.js')
+const dialogs = require('./js/dialogs.js')
+const wiki = require('./js/wiki.js')
+const ipcHandler = require('./js/ipcHandler.js')
+const settings = require('./js/settings.js')
+const scripting = require('./js/scripting.js')
+const packetDom = require('./js/packetDom.js')
 
 state.proxyCapabilities = ipcRenderer.sendSync('proxyCapabilities', '')
 

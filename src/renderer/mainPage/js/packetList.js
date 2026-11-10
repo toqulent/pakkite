@@ -1,6 +1,5 @@
-/* global Clusterize */
-
 const { ipcRenderer } = require('electron')
+const Clusterize = require('clusterize.js')
 
 const state = require('./state.js').state
 const packetDom = require('./packetDom.js')

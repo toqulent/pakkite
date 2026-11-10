@@ -5,11 +5,14 @@ const path = require('path')
 const electronLocalShortcut = require('electron-localshortcut')
 const windowStateKeeper = require('electron-window-state')
 const unhandled = require('electron-unhandled')
+const Store = require('electron-store')
 
 const proxy = require('../proxy/java/proxy.js')
 const packetHandler = require('./packetHandler.js')
 const setupDataFolder = require('./setupDataFolder.js')
 const { registerIpcHandlers } = require('./ipc.js')
+
+new Store()
 
 const resourcesPath = fs.existsSync(process.resourcesPath.concat('/app/'))
   ? process.resourcesPath.concat('/app/') // Packaged with electron-forge
@@ -80,7 +83,9 @@ function startProxy (args) {
   })
 
   win.setResizable(true)
-  win.setPosition(mainWindowState.x, mainWindowState.y)
+  if (mainWindowState.x !== undefined && mainWindowState.y !== undefined) {
+    win.setPosition(mainWindowState.x, mainWindowState.y)
+  }
   win.setSize(mainWindowState.width, mainWindowState.height)
 
   mainWindowState.manage(win)
