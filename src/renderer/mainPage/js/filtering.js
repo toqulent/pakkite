@@ -1,6 +1,7 @@
 /* global escapeHtml */
 
-const state = require('./state.js').state
+const versionStore = require('./state.js')
+const state = versionStore.state
 const settings = require('./settings.js')
 const filteringLogic = require('./filteringLogic.js')
 const packetList = require('./packetList.js')
@@ -54,7 +55,7 @@ function updateFilterBox () {
 }
 
 function updateFilteringStorage () {
-  state.setVersionSpecificVar('hiddenPackets', state.hiddenPackets)
+  versionStore.setVersionSpecificVar('hiddenPackets', state.hiddenPackets)
 }
 
 function updateFilteringTab () {
@@ -138,7 +139,7 @@ exports.hideAllPackets = function () {
 }
 
 exports.resetHiddenToDefaults = function () {
-  const defaultHidden = state.findDefault('hiddenPackets')
+  const defaultHidden = versionStore.findDefault('hiddenPackets')
   state.hiddenPackets = {
     serverbound: [...defaultHidden.serverbound], clientbound: [...defaultHidden.clientbound]
   }
