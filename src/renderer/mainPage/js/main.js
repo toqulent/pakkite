@@ -103,6 +103,9 @@ document.getElementById('saveLog').addEventListener('click', () => {
 document.getElementById('loadLog').addEventListener('click', () => {
   ipcRenderer.send('loadLog', '')
 })
+document.getElementById('streamLog').addEventListener('click', () => {
+  ipcRenderer.send('streamLog', '')
+})
 
 // Filtering tab
 document.getElementById('showAllButton').addEventListener('click', filtering.showAllPackets)

@@ -76,9 +76,16 @@ exports.setup = function () {
 
   ipcRenderer.on('loadLogData', (event, arg) => {
     state.allPackets = JSON.parse(arg)
+    state.allPackets.forEach((packet, index) => {
+      packet.uid = index
+    })
     for (const packet of state.allPackets) {
       packetDom.addPacketToDOM(packet)
     }
+  })
+
+  ipcRenderer.on('streamingState', (event, active) => {
+    document.getElementById('streamLog').textContent = active ? 'Stop streaming' : 'Stream to file'
   })
 
   ipcRenderer.on('loadScriptData', (event, script) => {

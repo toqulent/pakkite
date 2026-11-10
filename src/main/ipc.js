@@ -2,6 +2,7 @@ const { app, BrowserWindow, ipcMain, clipboard, dialog } = require('electron')
 const fs = require('fs')
 
 const { buildPacketMenu } = require('./contextMenu.js')
+const streamer = require('./streamer.js')
 
 const LOG_FILE_FILTERS = [{ name: 'pakkite log files', extensions: ['pakkite-json'] }]
 const SCRIPT_FILE_FILTERS = [{ name: 'javascript files', extensions: ['js'] }]
@@ -24,7 +25,27 @@ function save (filePath, contents, onSaved) {
   })
 }
 
+function parseLogFile (contents) {
+  if (contents[0] === '[') {
+    return contents
+  }
+  const packets = []
+  for (const line of contents.split('\n')) {
+    try {
+      const trimmed = line.trim()
+      if (trimmed !== '') {
+        packets.push(JSON.parse(trimmed))
+      }
+    } catch (err) {
+
+    }
+  }
+  return JSON.stringify(packets)
+}
+
 exports.registerIpcHandlers = function (getProxy, getWindow, iconsPath) {
+  streamer.onStateChange((active) => sendToWindow('streamingState', active))
+
   ipcMain.on('proxyCapabilities', (event) => {
     event.returnValue = getProxy().capabilities
   })
@@ -66,7 +87,7 @@ exports.registerIpcHandlers = function (getProxy, getWindow, iconsPath) {
       console.log('Loading log from', result.filePaths[0])
       fs.readFile(result.filePaths[0], 'utf-8', function (err, data) {
         if (err) throw err
-        sendToWindow('loadLogData', data)
+        sendToWindow('loadLogData', parseLogFile(data))
       })
     }
   })
@@ -121,4 +142,25 @@ exports.registerIpcHandlers = function (getProxy, getWindow, iconsPath) {
       })
     }
   })
+
+  ipcMain.on('streamLog', async () => {
+    if (streamer.isActive()) {
+      streamer.stop()
+      return
+    }
+
+    const result = await dialog.showSaveDialog(getWindow(), {
+      filters: LOG_FILE_FILTERS
+    })
+
+    if (!result.canceled) {
+      try {
+        streamer.start(ensureExtension(result.filePath, '.pakkite-json'))
+      } catch (err) {
+        sendToWindow('message', { header: 'Unable to start streaming', info: err.message, fatal: false })
+      }
+    }
+  })
 }
+
+exports.parseLogFile = parseLogFile

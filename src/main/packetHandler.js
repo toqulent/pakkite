@@ -1,4 +1,5 @@
 const _eval = require('node-eval')
+const streamer = require('./streamer.js')
 
 let mainWindow
 let ipcMain
@@ -40,7 +41,11 @@ exports.init = function (window, passedIpcMain, passedProxy) {
 
 exports.packetHandler = function (direction, meta, data, id, raw, canUseScripting, packetValid) {
   try {
-    mainWindow.send('packet', { meta: meta, data: data, direction: direction, hexIdString: id, raw: raw, time: Date.now(), packetValid: packetValid })
+    const packet = { meta: meta, data: data, direction: direction, hexIdString: id, raw: raw, time: Date.now(), packetValid: packetValid }
+    mainWindow.send('packet', packet)
+    if (streamer.isActive()) {
+      streamer.write(packet)
+    }
     if (proxy.capabilities.scriptingSupport && canUseScripting && currentScriptModule) {
       if (direction === 'clientbound') {
         currentScriptModule.downstreamHandler(meta, data, server, client)
